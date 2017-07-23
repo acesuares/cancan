@@ -32,41 +32,41 @@ describe CanCan::ControllerAdditions do
 
   it "load_and_authorize_resource should setup a before filter which passes call to ControllerResource" do
     stub(CanCan::ControllerResource).new(@controller, nil, :foo => :bar).mock!.load_and_authorize_resource
-    mock(@controller_class).before_filter({}) { |options, block| block.call(@controller) }
+    mock(@controller_class).before_action({}) { |options, block| block.call(@controller) }
     @controller_class.load_and_authorize_resource :foo => :bar
   end
 
   it "load_and_authorize_resource should properly pass first argument as the resource name" do
     stub(CanCan::ControllerResource).new(@controller, :project, :foo => :bar).mock!.load_and_authorize_resource
-    mock(@controller_class).before_filter({}) { |options, block| block.call(@controller) }
+    mock(@controller_class).before_action({}) { |options, block| block.call(@controller) }
     @controller_class.load_and_authorize_resource :project, :foo => :bar
   end
 
   it "load_and_authorize_resource with :prepend should prepend the before filter" do
-    mock(@controller_class).prepend_before_filter({})
+    mock(@controller_class).prepend_before_action({})
     @controller_class.load_and_authorize_resource :foo => :bar, :prepend => true
   end
 
   it "authorize_resource should setup a before filter which passes call to ControllerResource" do
     stub(CanCan::ControllerResource).new(@controller, nil, :foo => :bar).mock!.authorize_resource
-    mock(@controller_class).before_filter(:except => :show, :if => true) { |options, block| block.call(@controller) }
+    mock(@controller_class).before_action(:except => :show, :if => true) { |options, block| block.call(@controller) }
     @controller_class.authorize_resource :foo => :bar, :except => :show, :if => true
   end
 
   it "load_resource should setup a before filter which passes call to ControllerResource" do
     stub(CanCan::ControllerResource).new(@controller, nil, :foo => :bar).mock!.load_resource
-    mock(@controller_class).before_filter(:only => [:show, :index], :unless => false) { |options, block| block.call(@controller) }
+    mock(@controller_class).before_action(:only => [:show, :index], :unless => false) { |options, block| block.call(@controller) }
     @controller_class.load_resource :foo => :bar, :only => [:show, :index], :unless => false
   end
 
   it "skip_authorization_check should set up a before filter which sets @_authorized to true" do
-    mock(@controller_class).before_filter(:filter_options) { |options, block| block.call(@controller) }
+    mock(@controller_class).before_action(:filter_options) { |options, block| block.call(@controller) }
     @controller_class.skip_authorization_check(:filter_options)
     @controller.instance_variable_get(:@_authorized).should be_true
   end
 
   it "check_authorization should trigger AuthorizationNotPerformed in after filter" do
-    mock(@controller_class).after_filter(:only => [:test]) { |options, block| block.call(@controller) }
+    mock(@controller_class).after_action(:only => [:test]) { |options, block| block.call(@controller) }
     lambda {
       @controller_class.check_authorization(:only => [:test])
     }.should raise_error(CanCan::AuthorizationNotPerformed)
@@ -74,7 +74,7 @@ describe CanCan::ControllerAdditions do
 
   it "check_authorization should not trigger AuthorizationNotPerformed when :if is false" do
     stub(@controller).check_auth? { false }
-    mock(@controller_class).after_filter({}) { |options, block| block.call(@controller) }
+    mock(@controller_class).after_action({}) { |options, block| block.call(@controller) }
     lambda {
       @controller_class.check_authorization(:if => :check_auth?)
     }.should_not raise_error(CanCan::AuthorizationNotPerformed)
@@ -82,7 +82,7 @@ describe CanCan::ControllerAdditions do
 
   it "check_authorization should not trigger AuthorizationNotPerformed when :unless is true" do
     stub(@controller).engine_controller? { true }
-    mock(@controller_class).after_filter({}) { |options, block| block.call(@controller) }
+    mock(@controller_class).after_action({}) { |options, block| block.call(@controller) }
     lambda {
       @controller_class.check_authorization(:unless => :engine_controller?)
     }.should_not raise_error(CanCan::AuthorizationNotPerformed)
@@ -90,7 +90,7 @@ describe CanCan::ControllerAdditions do
 
   it "check_authorization should not raise error when @_authorized is set" do
     @controller.instance_variable_set(:@_authorized, true)
-    mock(@controller_class).after_filter(:only => [:test]) { |options, block| block.call(@controller) }
+    mock(@controller_class).after_action(:only => [:test]) { |options, block| block.call(@controller) }
     lambda {
       @controller_class.check_authorization(:only => [:test])
     }.should_not raise_error(CanCan::AuthorizationNotPerformed)
