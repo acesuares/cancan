@@ -32,10 +32,10 @@ module CanCan
       #   end
       #
       # A resource is not loaded if the instance variable is already set. This makes it easy to override
-      # the behavior through a before_filter on certain actions.
+      # the behavior through a before_action on certain actions.
       #
       #   class BooksController < ApplicationController
-      #     before_filter :find_book_by_permalink, :only => :show
+      #     before_action :find_book_by_permalink, :only => :show
       #     load_resource
       #
       #     private
@@ -110,7 +110,7 @@ module CanCan
       #     load_resource :new => :build
       #
       # [:+prepend+]
-      #   Passing +true+ will use prepend_before_filter instead of a normal before_filter.
+      #   Passing +true+ will use prepend_before_action instead of a normal before_action.
       #
       def load_resource(*args)
         raise ImplementationRemoved, "The load_resource method has been removed, use load_and_authorize_resource instead."
@@ -170,7 +170,7 @@ module CanCan
       #   Authorize conditions on this parent resource when instance isn't available.
       #
       # [:+prepend+]
-      #   Passing +true+ will use prepend_before_filter instead of a normal before_filter.
+      #   Passing +true+ will use prepend_before_action instead of a normal before_action.
       #
       def authorize_resource(*args)
         raise ImplementationRemoved, "The authorize_resource method has been removed, use load_and_authorize_resource instead."
@@ -231,7 +231,7 @@ module CanCan
       #     enable_authorization
       #   end
       #
-      # Internally it does this in a before_filter for every action.
+      # Internally it does this in a before_action for every action.
       #
       #   authorize! params[:action], params[:controller]
       #
@@ -255,12 +255,12 @@ module CanCan
       #     enable_authorization :unless => :devise_controller?
       #
       def enable_authorization(options = {}, &block)
-        before_filter(options.slice(:only, :except)) do |controller|
+        before_action(options.slice(:only, :except)) do |controller|
           next if options[:if] && !controller.send(options[:if])
           next if options[:unless] && controller.send(options[:unless])
           controller.authorize! controller.params[:action], controller.params[:controller]
         end
-        after_filter(options.slice(:only, :except)) do |controller|
+        after_action(options.slice(:only, :except)) do |controller|
           next if options[:if] && !controller.send(options[:if])
           next if options[:unless] && controller.send(options[:unless])
           unless controller.current_ability.fully_authorized? controller.params[:action], controller.params[:controller]

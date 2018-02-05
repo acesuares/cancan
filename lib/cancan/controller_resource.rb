@@ -5,8 +5,8 @@ module CanCan
     def self.add_before_action(controller_class, behavior, *args)
       options = args.extract_options!.merge(behavior)
       resource_name = args.first
-      before_filter_method = options.delete(:prepend) ? :prepend_before_filter : :before_filter
-      controller_class.send(before_filter_method, options.slice(:only, :except, :if, :unless)) do |controller|
+      before_action_method = options.delete(:prepend) ? :prepend_before_action : :before_action
+      controller_class.send(before_action_method, options.slice(:only, :except, :if, :unless)) do |controller|
         controller.class.cancan_resource_class.new(controller, resource_name, options.except(:only, :except, :if, :unless)).process
       end
     end
